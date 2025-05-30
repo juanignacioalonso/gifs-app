@@ -1,10 +1,15 @@
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Gif } from './../interfaces/gif.interface';
 import { GifMapper } from './../mapper/gif.mapper';
 import { environment } from '#@environments/environment';
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable, signal } from '@angular/core';
 import type { GiphyResponse } from '../interfaces/giphy.interfaces';
-import { map } from 'rxjs';
+import { map, tap } from 'rxjs';
+
+
+
+
+
 
 @Injectable({providedIn: 'root'})
 export class GifService {
@@ -13,6 +18,10 @@ export class GifService {
 
   trendingGifs = signal<Gif[]>([])
   trendingGifsLoading = signal(true);
+
+  //Para almacenar la busqueda de los gif que hacemos
+  searchHistory = signal<Record<string,Gif[]>>({})
+  searchHistoryKeys = computed(()=>Object.keys(this.searchHistory()));
 
   constructor() {
 
@@ -52,7 +61,14 @@ export class GifService {
       map(({data})=>data),
       map((items)=>GifMapper.mapGiphyItemsToGifArray(items)),
 
-      //TODO: Historial
+      // Historial
+      //Cada ves que busque un elemento y tenga una resolución del mismo va a ser necesario usar un efecto secundario, el operador para este fin es tap
+      tap( (items)=>{
+        this.searchHistory.update((history) => ({
+          ...history,
+          [query.toLowerCase()]: items,
+        }));
+      })
     );
     //.subscribe((resp)=>{
 
