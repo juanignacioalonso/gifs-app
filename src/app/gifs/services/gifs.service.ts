@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Gif } from './../interfaces/gif.interface';
 import { GifMapper } from './../mapper/gif.mapper';
@@ -8,6 +8,18 @@ import { map, Observable, tap } from 'rxjs';
 
 
 
+// Guardamos los gifs en el localStorage con la clave 'gifs'
+const GIF_KEY = 'gifs';
+
+
+// Esta función se encarga de cargar los gifs desde el localStorage
+
+const loadFromLocalStorage = () => {
+  const gifsFromLocalStorage = localStorage.getItem(GIF_KEY) ?? '{}'; // record<string, Gif[]>
+  const gifs = JSON.parse(gifsFromLocalStorage);
+  console.log(gifs)
+  return gifs;
+}
 
 
 
@@ -20,7 +32,7 @@ export class GifService {
   trendingGifsLoading = signal(true);
 
   //Para almacenar la busqueda de los gif que hacemos
-  searchHistory = signal<Record<string,Gif[]>>({})
+  searchHistory = signal<Record<string,Gif[]>>(loadFromLocalStorage())
   searchHistoryKeys = computed(()=>Object.keys(this.searchHistory()));
 
   constructor() {
@@ -28,6 +40,12 @@ export class GifService {
     this.loadTrendingGifs();
 
   }
+
+  saveGifsToLocalStorage = effect(()=>{
+    const historyString = JSON.stringify(this.searchHistory());
+    localStorage.setItem('gifs',historyString);
+  })
+
 
   loadTrendingGifs() {
 
