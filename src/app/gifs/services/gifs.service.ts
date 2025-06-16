@@ -31,6 +31,17 @@ export class GifService {
   trendingGifs = signal<Gif[]>([])
   trendingGifsLoading = signal(true);
 
+  //Hay q ordenarlos de la siguiente manera[[gif,gif,gif],[gif,gif,gif],[gif,gif,gif]]
+
+  trndingGifGroup = computed<Gif[][]>(()=>{
+    const groups = [];
+    for ( let i = 0; i < this.trendingGifs().length; i += 3){
+      groups.push(this.trendingGifs().slice(i,i+3));
+    }
+
+   return groups; // [[gif1,gif2,gif3],[gif4,gif5,gif6],[gif7,gif8,gif9]]
+  })
+
   //Para almacenar la busqueda de los gif que hacemos
   searchHistory = signal<Record<string,Gif[]>>(loadFromLocalStorage())
   searchHistoryKeys = computed(()=>Object.keys(this.searchHistory()));
