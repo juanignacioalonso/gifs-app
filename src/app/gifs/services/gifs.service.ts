@@ -17,7 +17,7 @@ const GIF_KEY = 'gifs';
 const loadFromLocalStorage = () => {
   const gifsFromLocalStorage = localStorage.getItem(GIF_KEY) ?? '{}'; // record<string, Gif[]>
   const gifs = JSON.parse(gifsFromLocalStorage);
-  console.log(gifs)
+
   return gifs;
 }
 
@@ -72,7 +72,7 @@ export class GifService {
       this.trendingGifs.set(gifs);
       this.trendingGifsLoading.set(false);
 
-      console.log({gifs});
+
 
     })
 
